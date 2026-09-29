@@ -1,5 +1,9 @@
 def format_record(rec: tuple[str, str, float]) -> str:
 
+    # Проверяем тип входного значения (он должен быть кортежем)
+    if not isinstance(rec, tuple):
+        raise TypeError
+
     # Проверяем количество элементов
     if len(rec) != 3:
         raise ValueError
@@ -46,7 +50,6 @@ def format_record(rec: tuple[str, str, float]) -> str:
 
     # Формируем результат
     return f"{surname} {initials}, гр. {group}, GPA {gpa:.2f}"
-
 
 if __name__ == "__main__":
     print(format_record(("Иванов Иван Иванович", "BIVT-25", 4.6)))
