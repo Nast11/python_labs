@@ -1,172 +1,105 @@
-# Лабораторная работа 2
+# Лабораторная работа 3
 ## Задание 1
 ```python
-def min_max(nums: list[float | int]) -> tuple[float | int, float | int]:
-    if len(nums) == 0:
-        raise ValueError
+def normalize(text: str, *, casefold: bool = True, yo2e: bool = True) -> str:
 
-    minimum = nums[0]
-    maximum = nums[0]
+    if not isinstance(text, str):
+        raise TypeError
 
-    for i in nums:
-        if i < minimum:
-            minimum = i
-        if i > maximum:
-            maximum = i
+    if casefold:
+        text = text.casefold()
+    else:
+        text = text.lower()
 
-    return minimum, maximum
+    if yo2e:
+        text = text.replace("ё", "е")
+        text = text.replace("Ё", "Е")
+        ''' уже произошла замена заглавных букв на строчные,
+        но т.к. в условии написано, сделаю и такую замену '''
+
+    text = text.replace("\t", " ")
+    text = text.replace("\r", " ")
+    text = text.replace("\n", " ")
+
+    text = text.strip()
+    text = ' '.join(text.split())
+
+    return text
+
+import re
+
 ```
-![скрин 1](images/lab02/img1.1.png)
+![скрин 1](images/lab03/img1.1.png)
 
 ```python
-def unique_sorted(nums: list[float | int]) -> list[float | int]:
+def tokenize(text: str) -> list[str]:
 
-    uniq_nums = list(set(nums))
+    words_re = r"\w+(?:-\w+)*"
+    words = re.findall(words_re, text)
 
-    for i in range(len(uniq_nums)):
-        for j in range(len(uniq_nums)-i-1):
-            if uniq_nums[j] > uniq_nums[j+1]:
-                uniq_nums[j], uniq_nums[j+1] = uniq_nums[j+1], uniq_nums[j]
-    return uniq_nums
+    return words
 ```
-![скрин 2](images/lab02/img1.2.png)
+![скрин 2](images/lab03/img1.2.png)
 
 ```python
-def flatten(mat: list[list | tuple]) -> list:
+def count_freq(tokens: list[str]) -> dict[str, int]:
 
-    result = []
+    freq = {} # создаём пустой словарь
 
-    for row in mat:
-        if not isinstance(row, (list, tuple)):
-            raise TypeError
+    for token in tokens: # по очереди берём каждое слово из списка tokens
+        if token in freq:
+            freq[token] += 1
+        else:
+            freq[token] = 1
 
-        result.extend(row)
-
-    return result
+    return freq
 ```
-![скрин 3](images/lab02/img1.3.png)
+![скрин 3](images/lab03/img1.3.png)
+
+```python
+def top_n(freq: dict[str, int], n: int = 5) -> list[tuple[str, int]]:
+    
+    items = list(freq.items())
+    items.sort(key=lambda item: (-item[1], item[0]))
+    
+    return items[:n]
+
+```
+![скрин 4](images/lab03/img1.4.png) 
 
 ## Задание 2
 ```python
-from src.lib.matrix_utils import validate_mat
-def transpose(mat: list[list[float | int]]) -> list[list]:
-    validate_mat(mat)
+from src.lib.text import normalize, tokenize, count_freq, top_n
 
-    if len(mat) == 0:
-        return []
-    
-    result = []
 
-    row_count = len(mat)
-    column_count = len(mat[0])
+TABLE_MODE = True
 
-    for i in range(column_count):
-        new_row = []
-        for j in range(row_count):
-            element = mat[j][i]
-            new_row.append(element)
-        result.append(new_row)
-    return result
+text = input()
+
+normalized_text = normalize(text)
+tokens = tokenize(normalized_text)
+frequencies = count_freq(tokens)
+popular_words = top_n(frequencies, 5)
+
+print(f"Всего слов: {len(tokens)}")
+print(f"Уникальных слов: {len(frequencies)}")
+print("Топ-5:")
+
+if TABLE_MODE:
+    word_width = len("слово")
+
+    for word, count in popular_words:
+        if len(word) > word_width:
+            word_width = len(word)
+
+    print(f"{'слово':<{word_width}} | частота")
+    print("-" * (word_width + 10))
+
+    for word, count in popular_words:
+        print(f"{word:<{word_width}} | {count}")
+
+else:
+    for word, count in popular_words:
+        print(f"{word}:{count}")
 ```
-![скрин 1](images/lab02/img2.1.png)
-
-```python
-def row_sums(mat: list[list[float | int]]) -> list[float]:
-    validate_mat(mat)
-
-    result = []
-
-    for row in mat:
-        row_sum = sum(row)
-        result.append(row_sum)
-    return result
-```
-![скрин 2](images/lab02/img2.2.png)
-
-```python
-def col_sums(mat: list[list[float | int]]) -> list[float]:
-    validate_mat(mat)
-
-    if len(mat) == 0:
-        return []
-
-    result = []
-
-    column_count = len(mat[0])
-
-    for column_index in range(column_count):
-        column_sum = 0
-        for row in mat:
-            column_sum += row[column_index]
-        result.append(column_sum)
-    return result
-```
-![скрин 3](images/lab02/img2.3.png)
-## Задание 3
-```python
-def format_record(rec: tuple[str, str, float]) -> str:
-
-    # Проверяем тип входного значения (он должен быть кортежем)
-    if not isinstance(rec, tuple):
-        raise TypeError
-
-    # Проверяем количество элементов
-    if len(rec) != 3:
-        raise ValueError
-
-    # Получаем ФИО, группу и GPA
-    fio, group, gpa = rec
-
-    # Проверяем типы
-    if not isinstance(fio, str):
-        raise TypeError
-
-    if not isinstance(group, str):
-        raise TypeError
-
-    if not isinstance(gpa, (int, float)):
-        raise TypeError
-
-    # Убираем лишние пробелы
-    fio = " ".join(fio.split())
-    group = group.strip()
-
-    # Проверяем, что ФИО и группа не пустые
-    if not fio:
-        raise ValueError
-
-    if not group:
-        raise ValueError
-
-    # Проверяем допустимое значение GPA
-    if gpa < 0.0 or gpa > 5.0:
-        raise ValueError
-
-    # Разделяем ФИО на слова
-    parts = fio.split()
-
-    # нужно указать минимум фамилию и имя
-    if len(parts) < 2:
-        raise ValueError
-
-    # Первое слово — фамилия
-    surname = parts[0].capitalize()
-
-    # Получаем инициалы имени и отчества
-    initials = ""
-
-    for word in parts[1:3]:
-        initials += word[0].upper() + "."
-
-    # Формируем результат
-    return f"{surname} {initials}, гр. {group}, GPA {gpa:.2f}"
-```
-![скрин 1](images/lab02/img3.1.png)
-
-![скрин 2](images/lab02/img3.2.png)
-
-![скрин 3](images/lab02/img3.3.png)
-
-
-
-
+![скрин 1](images/lab03/img2.png)
