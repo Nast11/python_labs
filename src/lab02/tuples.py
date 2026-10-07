@@ -32,6 +32,10 @@ def format_record(rec: tuple[str, str, float]) -> str:
     if not group:
         raise ValueError
 
+    # Проверяем допустимое значение GPA
+    if gpa < 0.0 or gpa > 5.0:
+        raise ValueError
+
     # Разделяем ФИО на слова
     parts = fio.split()
 
