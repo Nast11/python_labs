@@ -14,8 +14,6 @@ def normalize(text: str, *, casefold: bool = True, yo2e: bool = True) -> str:
     if yo2e:
         text = text.replace("ё", "е")
         text = text.replace("Ё", "Е")
-        ''' уже произошла замена заглавных букв на строчные,
-        но т.к. в условии написано, сделаю и такую замену '''
 
     text = text.replace("\t", " ")
     text = text.replace("\r", " ")
